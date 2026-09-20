@@ -1,0 +1,95 @@
+{
+  "manifest_version": 3,
+  "name": "Re:Cognition - 사용자 맞춤형 유동적 UI 조정 에이전트",
+  "short_name": "Re:Cognition",
+  "version": "2.0.0",
+  "description": "SDG 10 불평등 해소: 사용자(페르소나)에 맞춰 웹페이지를 쉬운 화면·소리 중심 화면으로 다시 구성하는 Human-in-the-Loop 접근성 에이전트",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "pages/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_title": "Re:Cognition 열기"
+  },
+  "side_panel": {
+    "default_path": "pages/sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "sidePanel",
+    "search",
+    "topSites",
+    "tabCapture",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "commands": {
+    "revert_ui": {
+      "suggested_key": {
+        "default": "Alt+Z",
+        "mac": "Alt+Z"
+      },
+      "description": "원래 UI로 긴급 복구"
+    },
+    "open_side_panel": {
+      "suggested_key": {
+        "default": "Alt+Shift+U",
+        "mac": "Alt+Shift+U"
+      },
+      "description": "Re:Cognition 사이드 패널 열기"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "shared/safety.js",
+        "shared/view-prefs.js",
+        "shared/persona.js",
+        "shared/layout.js",
+        "shared/actions.js",
+        "shared/speech.js",
+        "content/ui-css.js",
+        "content/parts.js",
+        "content/extractor.js",
+        "content/rebuild.js",
+        "content/content.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/*",
+        "assets/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "chrome_url_overrides": {
+    "newtab": "pages/newtab.html"
+  }
+}
