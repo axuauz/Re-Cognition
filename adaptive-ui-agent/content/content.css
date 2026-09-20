@@ -1,0 +1,147 @@
+/* EqualiUI — 웹페이지 자체에 적용되는 스타일만 둔다 (테마·글꼴 보조·읽기 하이라이트·에디터 선택 표시).
+   확장 UI(검토 카드·배너·알림 등)의 스타일은 Shadow DOM 안에서만 쓰이며 content/ui-css.js 에 있다. */
+
+/* EqualiUI Content Styles - Accessible & Non-destructive */
+
+/* Accessibility Themes */
+body.equali-theme-dark-contrast {
+  background-color: #121212 !important;
+  color: #F3F4F6 !important;
+}
+
+body.equali-theme-dark-contrast * {
+  background-color: transparent !important;
+  color: #F3F4F6 !important;
+  border-color: #374151 !important;
+}
+
+body.equali-theme-dark-contrast a {
+  color: #38BDF8 !important;
+  text-decoration: underline !important;
+}
+
+body.equali-theme-dark-contrast button,
+body.equali-theme-dark-contrast input,
+body.equali-theme-dark-contrast select,
+body.equali-theme-dark-contrast textarea {
+  background-color: #1F2937 !important;
+  color: #F9FAFB !important;
+  border: 2px solid #6366F1 !important;
+}
+
+/* Warm Sepia Theme (Reduces Eye Strain & Cognitive Fatigue) */
+body.equali-theme-warm-sepia {
+  background-color: #FBF0D9 !important;
+  color: #2D241E !important;
+}
+
+body.equali-theme-warm-sepia * {
+  background-color: transparent !important;
+  color: #2D241E !important;
+  border-color: #D7C4A5 !important;
+}
+
+body.equali-theme-warm-sepia a {
+  color: #8B4513 !important;
+  text-decoration: underline !important;
+}
+
+/* High Contrast Yellow on Black (Low Vision / Cataracts / Retinitis Pigmentosa) */
+body.equali-theme-yellow-contrast {
+  background-color: #000000 !important;
+  color: #FFEE00 !important;
+}
+
+body.equali-theme-yellow-contrast * {
+  background-color: transparent !important;
+  color: #FFEE00 !important;
+  border-color: #FFEE00 !important;
+}
+
+body.equali-theme-yellow-contrast a {
+  color: #00FFFF !important;
+  text-decoration: underline !important;
+}
+
+/* Dyslexia-Friendly Font & Spacing */
+.equali-font-dyslexic {
+  font-family: 'Lexend', 'Atkinson Hyperlegible', 'Comic Sans MS', sans-serif !important;
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.15em !important;
+  line-height: 1.9 !important;
+}
+
+/* Enlarged Font Base */
+.equali-font-enlarged {
+  font-size: 115% !important;
+  line-height: 1.85 !important;
+}
+
+.equali-font-extra-large {
+  font-size: 130% !important;
+  line-height: 2 !important;
+}
+
+/* Distraction Filter */
+.equali-distraction-hidden {
+  opacity: 0.08 !important;
+  filter: grayscale(100%) blur(3px) !important;
+  max-height: 80px !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+  pointer-events: auto !important;
+  position: relative !important;
+}
+
+.equali-distraction-hidden:hover {
+  opacity: 1 !important;
+  filter: none !important;
+  max-height: none !important;
+}
+
+/* Focus Highlight Guide */
+.equali-focus-highlight {
+  outline: 3px solid #6366F1 !important;
+  outline-offset: 3px !important;
+  border-radius: 4px !important;
+  transition: outline 0.15s ease !important;
+}
+
+/* Bionic Reading Highlighting */
+.equali-bionic-lead {
+  font-weight: 800 !important;
+  color: inherit !important;
+  display: inline !important;
+}
+
+/* ==========================================================================
+   Specialized Accessibility Features Styles (TTS, Captions, Plain Language)
+   ========================================================================== */
+
+/* 1. TTS Reading Highlight */
+.equali-tts-reading-highlight {
+  background-color: rgba(254, 240, 138, 0.45) !important;
+  outline: 3px solid #EAB308 !important;
+  outline-offset: 3px !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* ==========================================================================
+   6. Visual Custom Editor (Figma Mode)
+   ========================================================================== */
+
+.equali-editor-hover {
+  outline: 2px dashed #8B5CF6 !important;
+  outline-offset: 2px !important;
+  cursor: crosshair !important;
+  transition: outline 0.1s !important;
+}
+
+.equali-editor-selected {
+  outline: 3px solid #8B5CF6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.2) !important;
+  position: relative !important;
+  z-index: 2147483640 !important;
+}

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Re:Cognition HITL Harness</title>
+<link rel="stylesheet" href="../content/content.css">
+<style>body{font-family:sans-serif;margin:0} main{max-width:760px;margin:24px auto;padding:0 16px} main p{font-size:12px;color:#777;line-height:1.4} aside{background:#eee;padding:12px}</style>
+</head>
+<body>
+<header><nav><a href="#home">홈</a> <a href="#news">뉴스</a> <a href="#map">지도</a> <a href="#mail">메일 보내기</a></nav></header>
+<main>
+  <h1>하네스 기사 제목</h1>
+  <form id="f" onsubmit="return false"><input id="q" placeholder="검색어 입력"><button id="search-btn" type="submit">검색</button></form>
+  <p>이 문단은 작은 회색 글씨로 되어 있어 읽기 어렵습니다. 접근성 신호 수집기와 검증기가 실제 페이지에서 동작하는지 확인하기 위한 충분히 긴 본문입니다. 같은 문장을 조금 더 이어 붙여 길이를 확보합니다.</p>
+  <p>두 번째 문단입니다. 추천 엔진은 글자 크기와 대비를 측정해 제안의 근거로 사용합니다. 이 문장 역시 테스트를 위한 본문입니다.</p>
+  <section id="results" style="max-width:420px">
+    <a href="#r1"><cite style="display:block;font-size:11px">https://www.example.kr</cite><h3 style="margin:0">제목을 감싼 검색 결과 링크</h3></a>
+    <p>본문 중간에 <a href="#r2">여러 줄에 걸쳐 이어지는 아주 긴 링크 문구가 있어서 줄이 바뀌면 상자가 조각나는 경우를 재현합니다</a> 그리고 나머지 글.</p>
+    <a href="#r3" style="display:inline-block;width:0;height:0;overflow:hidden"></a><a href="#r4" style="display:inline-block;width:0;height:0;overflow:hidden"></a>
+  </section>
+</main>
+<aside class="sidebar ad-box">사이드바 광고 <a href="#ad">오늘만 특가 쿠폰 받기</a></aside>
+<button id="buy-btn" onclick="window.__bought=(window.__bought||0)+1">바로구매</button>
+<script>
+  // chrome.* 스텁: Service Worker 대신 shared 모듈로 같은 파이프라인을 흉내낸다
+  // ?fast=1 : 10초 이상의 타이머(적용 후 확인 40초, 망설임 45초, 이탈 60초)를 1/100 로 줄여 확인
+  if (new URLSearchParams(location.search).has('fast')) {
+    const _st = window.setTimeout;
+    window.setTimeout = (fn, ms, ...a) => _st(fn, ms >= 10000 ? ms / 100 : ms, ...a);
+    Object.defineProperty(document, 'hidden', { get: () => false }); // 백그라운드 탭에서도 '적용 후 확인'을 시험
+  }
+  window.__sent = []; window.__listeners = []; window.__pid = 0;
+  const Q0 = new URLSearchParams(location.search);
+  window.__personaId = Q0.get('persona') || 'none';
+  window.__nextProposal = null;
+  window.chrome = { runtime: {
+    onMessage: { addListener: (fn) => window.__listeners.push(fn) },
+    sendMessage: (msg, cb) => {
+      window.__sent.push(msg);
+      let res = { success: true };
+      if (msg.type === 'DIRECT_INSTRUCTION' || msg.type === 'BUILD_SHORTCUT_PROPOSAL') {
+        // 실제 서비스 워커처럼: 후보 여러 개(window.__nextCandidates) → 각각 감사 + 실측 → EqualiSelection 으로 최적 선택.
+        // AI 가 쓴 자유 HTML/JS 는 버리고 부품(components)만 받는다.
+        const SHORTCUT_TARGETS = [{ label: '검색', selector: '#search-btn', count: 5 }, { label: '홈', selector: 'nav a', count: 4 }];
+        if (msg.type === 'BUILD_SHORTCUT_PROPOSAL') window.__nextCandidates = [{ strategy: 'structural', targets: ['shortcuts'], goalTitle: '자주 쓰는 버튼 바로가기', summary: '자주 누르시는 버튼을 위쪽에 모았습니다.', generatedCss: '', components: [{ type: 'quick_actions', anchor: 'main', position: 'prepend', props: { title: '자주 쓰는 기능', actions: SHORTCUT_TARGETS.map(t => ({ label: t.label, targetSelector: t.selector })) } }] }];
+        const list = (window.__nextCandidates || [window.__nextProposal]).map((c, i) => ({ strategy: ['minimal', 'balanced', 'structural'][i] || 'balanced', targets: [], ...c, generatedDom: [], generatedJs: {}, id: 'p' + (++window.__pid) }));
+        (async () => {
+          const evaluated = [];
+          for (const raw of list) {
+            if (!new URLSearchParams(location.search).has('noguard')) { const q = EqualiCssQuality.improveCss(raw.generatedCss || ''); raw.generatedCss = q.css; raw.qualityNotes = q.notes; } // ?noguard=1 : 가드 없이 검증기만 시험
+            const audit = EqualiSafety.auditProposal(raw, msg.pageData);
+            const v = await window.__msg({ type: 'VALIDATE_PROPOSAL', proposal: audit.sanitized });
+            evaluated.push({ raw, audit, report: v.report, strategy: raw.strategy, targets: raw.targets });
+          }
+          const dims = EqualiProfile.inferDimensions(EqualiProfile.emptyProfile(), (new URLSearchParams(location.search).get('traits') || '').split(',').filter(Boolean));
+          const ranked = EqualiSelection.selectBest(evaluated, { dims, strategyStats: window.__strategyStats || {} });
+          const candidates = ranked.map(c => ({
+            proposal: { id: c.raw.id, strategy: c.strategy, goalTitle: c.raw.goalTitle, summary: c.raw.summary, identifiedTraits: [], ...c.audit.sanitized },
+            audit: { riskLevel: c.audit.riskLevel, findings: c.audit.findings, blockedCount: c.audit.blockedCount, isEmpty: c.audit.isEmpty, notes: c.raw.qualityNotes || [] },
+            metrics: c.report && c.report.metrics, score: c.score, strategyText: EqualiSelection.STRATEGIES[c.strategy]
+          }));
+          window.__candidates = candidates;
+          if (cb) cb({ success: true, proposal: candidates[0].proposal, audit: candidates[0].audit, candidates: list.length > 1 ? candidates : [] });
+        })();
+        return;
+      } else if (msg.type === 'APPROVE_PROPOSAL') {
+        const p = { ...window.__candidates.find(c => c.proposal.id === msg.proposalId).proposal }; if (!msg.includeJs) p.generatedJs = {};
+        res = { success: true, proposal: p };
+      } else if (msg.type === 'REJECT_PROPOSAL' || msg.type === 'REPORT_DISSATISFACTION') {
+        const p = msg.type === 'REJECT_PROPOSAL' ? (window.__candidates.find(c => c.proposal.id === msg.proposalId) || window.__candidates[0]).proposal : msg;
+        const last = window.__sent.filter(m => m.type === 'DIRECT_INSTRUCTION').pop() || {};
+        res = { success: true, alternative: EqualiAlternatives.proposeAlternative({
+          signal: msg.signal, reason: msg.reason, goalTitle: p.goalTitle, instruction: last.instruction,
+          ruleCount: ((p.generatedCss || '').match(/\{/g) || []).length,
+          depth: msg.type === 'REJECT_PROPOSAL' ? (last.altDepth || 0) : (msg.altDepth || 0),
+          prevKind: msg.type === 'REJECT_PROPOSAL' ? last.prevAltKind : msg.prevAltKind,
+          pageSignals: msg.pageSignals, activeFeatures: msg.activeFeatures }) };
+      } else if (msg.type === 'GET_AUTO_ADAPTATION') res = { autoApply: false };
+      else if (msg.type === 'GET_PERSONA_STATE') { // ?persona=elderly|blind|lowVision|...  &firstrun=1 : 처음 고르기 안내
+        const persona = EqualiPersona.get(window.__personaId);
+        const auto = persona.mode !== 'restyle' && persona.autoOpen;
+        res = { success: true, persona, personas: EqualiPersona.list(), tabOpen: window.__rebuildTab === true || !Q0.has('ask') /* ?ask=1 : 자동으로 띄우기 전에 묻는 제안 카드를 시험 */, shouldOpen: window.__rebuildTab === true || (window.__rebuildTab === undefined && auto), chosen: window.__personaId !== 'none' || !Q0.has('firstrun') };
+      }
+      else if (msg.type === 'SET_PERSONA') { window.__personaId = msg.personaId; window.__rebuildTab = undefined; res = { success: true }; }
+      else if (msg.type === 'SET_REBUILD_TAB') { window.__rebuildTab = msg.on; res = { success: true }; }
+      else if (msg.type === 'PLAN_LAYOUT') { // 실제 서비스 워커처럼 EqualiLayout 으로 감사·채점·선택 (AI 후보는 window.__aiLayouts 로 흉내)
+        window.__lastModel = msg.model;
+        const layouts = EqualiLayout.selectLayout(window.__aiLayouts || [], msg.model, EqualiPersona.get(msg.personaId));
+        res = { success: true, layouts, usedAI: layouts.length > 0 && layouts[0].source === 'ai', preferredDensity: window.__densityPref || null };
+      }
+      else if (msg.type === 'GENERATE_ELEMENT_ACTION') { // 실제 서비스 워커처럼: AI 응답(window.__aiAction)을 목록과 대조해 검증
+        const { spec, notes } = EqualiActions.sanitizeActionSpec(window.__aiAction || { actions: [] }, { instruction: msg.instruction, allowedUrls: (msg.pageLinks || []).map(l => l.href) });
+        res = spec ? { success: true, spec, code: EqualiActions.encode(spec), description: EqualiActions.describe(spec), notes } : { success: false, unsupported: true, error: '이 요청은 정해진 동작으로 만들 수 없습니다.', notes };
+      }
+      else if (msg.type === 'ENRICH_CONTENT') { // 실제 서비스 워커처럼: AI 응답(window.__aiEnrichment)을 검증해 돌려주고, 없으면 원문 앞부분
+        const persona = EqualiPersona.get(msg.personaId);
+        const e = window.__aiEnrichment ? EqualiLayout.sanitizeEnrichment(window.__aiEnrichment, msg.model) : EqualiLayout.localEnrichment(msg.model, persona);
+        res = { success: true, enrichment: e.summary.length ? e : EqualiLayout.localEnrichment(msg.model, persona) };
+      }
+      else if (msg.type === 'ADJUST_LAYOUT') { // 실제 서비스 워커처럼: 자주 쓰는 말은 로컬 해석, 그 밖은 window.__aiArrangement 로 AI 응답을 흉내
+        const local = EqualiLayout.interpretArrangement(msg.instruction, msg.layout, msg.arrangement);
+        res = local ? { success: true, ...local } : window.__aiArrangement ? { success: true, arrangement: EqualiLayout.sanitizeArrangement(window.__aiArrangement, msg.layout), say: '화면 배치를 바꿨습니다.', source: 'ai' } : { success: false, error: '화면 배치에 대한 요청으로 알아듣지 못했습니다.' };
+      }
+      else if (msg.type === 'REBUILD_FEEDBACK') { // 실제 서비스 워커처럼: 기록 + 원인을 프로필에 반영 + 다른 형태 제안
+        window.__densityPref = msg.density;
+        (window.__rebuildFeedback = window.__rebuildFeedback || []).push({ outcome: msg.outcome, reason: msg.reason, signal: msg.signal, view: msg.view });
+        if (msg.outcome === 'rejected' && msg.reason && typeof EqualiProfile !== 'undefined') window.__profile = EqualiProfile.learnFromDissatisfaction(window.__profile || EqualiProfile.emptyProfile(), { cause: msg.reason, signal: msg.signal });
+        res = { success: true, alternative: msg.outcome === 'rejected' ? EqualiLayout.suggestAlternative({ reason: msg.reason, density: msg.density, voice: msg.voice, available: msg.available, views: msg.views || [], view: msg.view, tried: msg.tried || [] }) : null };
+      }
+      else if (msg.type === 'GET_CONTEXT_PROMPT') { const kind = new URLSearchParams(location.search).get('ctx'); res = { success: true, prompt: kind === 'shortcuts' ? { kind, targets: [{ label: '검색', selector: '#search-btn', count: 5 }, { label: '홈', selector: 'nav a', count: 4 }] } : kind === 'struggle' ? { kind, goalTitle: '큰 글자' } : null }; } // ?ctx=shortcuts|struggle
+      else if (msg.type === 'GET_FEATURE_RECOMMENDATIONS') {
+        window.__signals = msg.signals;
+        const recs = EqualiRecommender.rankRecommendations({ signals: msg.signals, ...msg.pageContext });
+        res = { success: true, recommendations: recs.map(r => ({ id: r.featureId, title: r.featureId, desc: '테스트 설명', ...r })) };
+      }
+      if (cb) setTimeout(() => cb(res), 10);
+    }
+  }, storage: {
+    // ?theme=light|dark|contrast&size=normal|large|xlarge : 보기 설정 · ?traits=저시력 : 특성 메모
+    local: {
+      set: async () => {},
+      get: async () => {
+        const q = new URLSearchParams(location.search);
+        return {
+          newtabPrefs: q.get('theme') || q.get('size') ? { theme: q.get('theme') || 'auto', size: q.get('size') || 'normal', userSet: true } : undefined,
+          traitInsights: (q.get('traits') || '').split(',').filter(Boolean),
+          persona: window.__personaId,
+          personaPrompted: !q.has('firstrun'),
+          canvasEditorEnabled: q.has('canvas') // ?canvas=1 : 캔버스 에디터(실험 기능)를 켠 상태로 시험
+        };
+      }
+    },
+    onChanged: { addListener() {} }
+  } };
+  window.__msg = (m) => new Promise(r => window.__listeners[0](m, {}, r));
+</script>
+<script>window.__EQUALI_TEST_OPEN_SHADOW__ = true; // 하네스에서만 Shadow DOM 내부 확인 허용</script>
+<script src="../shared/safety.js"></script>
+<script src="../shared/view-prefs.js"></script>
+<script src="../shared/persona.js"></script>
+<script src="../shared/layout.js"></script>
+<script src="../shared/actions.js"></script>
+<script src="../shared/speech.js"></script>
+<script src="../content/ui-css.js"></script>
+<script src="../content/parts.js"></script>
+<script src="../content/extractor.js"></script>
+<script src="../content/rebuild.js"></script>
+<script src="../shared/recommender.js"></script>
+<script src="../shared/alternatives.js"></script>
+<script src="../shared/profile.js"></script>
+<script src="../shared/selection.js"></script>
+<script src="../shared/css-quality.js"></script>
+<script src="../content/content.js"></script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>글로벌 뉴스 데일리 - AI와 디지털 불평등의 미래</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #333333;
+      background-color: #FAFAFA;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #1E3A8A;
+      color: #FFFFFF;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #E2E8F0;
+      margin-left: 14px;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    .search-bar {
+      display: flex;
+      gap: 6px;
+    }
+    .search-bar input {
+      padding: 4px 8px;
+      font-size: 12px;
+      border: 1px solid #CBD5E1;
+      border-radius: 4px;
+    }
+    .search-bar button {
+      background: #2563EB;
+      color: #FFFFFF;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .container {
+      max-width: 980px;
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      padding: 0 16px;
+    }
+    article {
+      background: #FFFFFF;
+      padding: 24px;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+    }
+    h1 {
+      font-size: 20px;
+      color: #0F172A;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .meta {
+      color: #64748B;
+      font-size: 11px;
+      margin-bottom: 18px;
+    }
+    p {
+      margin-bottom: 14px;
+      text-align: justify;
+    }
+    /* Distracting sidebar & ads */
+    aside {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .banner-ad {
+      background: linear-gradient(135deg, #FFEDD5, #FED7AA);
+      border: 2px dashed #F97316;
+      padding: 16px;
+      text-align: center;
+      border-radius: 8px;
+      color: #9A3412;
+      font-weight: bold;
+    }
+    .banner-flash {
+      background: #FEE2E2;
+      border: 1px solid #EF4444;
+      padding: 12px;
+      border-radius: 6px;
+      color: #B91C1C;
+      font-size: 11px;
+    }
+    .widget-box {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      padding: 14px;
+      border-radius: 8px;
+    }
+    .widget-box h3 {
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #1E293B;
+    }
+    .widget-box ul {
+      padding-left: 16px;
+      font-size: 12px;
+      color: #475569;
+    }
+    .test-guide-card {
+      background: #EEF2FF;
+      border: 1px solid #C7D2FE;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .test-guide-card h3 {
+      color: #3730A3;
+      margin-top: 0;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="font-weight:bold; font-size:16px;">📰 데일리 디지털 리포트</div>
+    <div class="search-bar">
+      <!-- Search input & button (Must stay functional & untouched by agent) -->
+      <input type="text" id="site-search-input" placeholder="기사 검색..." />
+      <button type="submit" id="site-search-btn" onclick="alert('검색 버튼이 정상 작동합니다: ' + document.getElementById('site-search-input').value)">검색</button>
+    </div>
+    <nav class="nav-links">
+      <a href="#">정치</a>
+      <a href="#">경제</a>
+      <a href="#">기술/IT</a>
+      <a href="#">접근성포럼</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <main>
+      <div class="test-guide-card">
+        <h3>✨ EqualiUI 확장 프로그램 테스트 가이드</h3>
+        <p style="font-size:12px; margin:0; color:#4338CA;">
+          1. 브라우저 우측 하단에 생성된 <strong>EqualiUI 플로팅 배지</strong>를 클릭해 보세요.<br>
+          2. 제안된 가독성 항목(글자 확대, 바이오닉 리딩, 룰러, 고대비 테마)을 검토하고 적용해 보세요.<br>
+          3. 언제든 <strong>Alt + Z</strong> 단축키나 '원상복구' 버튼을 눌러 본래 디자인으로 100% 돌아가는지 확인하세요.<br>
+          4. 상단 '검색 버튼'을 클릭하여 핵심 시스템 기능이 훼손되지 않고 안전하게 보존되는지 점검하세요.
+        </p>
+      </div>
+
+      <article>
+        <h1>[SDG 10 기획] 인공지능 시대, 모든 사람을 위한 포용적 웹 인터페이스의 도래</h1>
+        <div class="meta">작성일: 2026. 09. 19 | IT & 디지털 포용 취재팀 | 조회수: 12,480</div>
+
+        <p>
+          디지털 대전환이 가속화되면서 웹사이트와 모바일 앱은 일상생활의 필수 관문이 되었습니다.
+          그러나 기존의 웹 디자인은 대다수의 비장애인 사용자를 표준으로 상정하여 제작되었기 때문에,
+          시각장애인, 저시력자, 난독증을 가진 이용자, 또는 문자 정보 소화에 어려움을 겪는 고령자와 어린이에게는
+          여전히 거대한 장벽으로 남아 있습니다. UN 지속가능발전목표(SDG) 10번은 '국가 내 및 국가 간 불평등 해소'를
+          핵심 과제로 제시하고 있으며, 오늘날 정보 격차는 소득과 기회의 불평등으로 직결됩니다.
+        </p>
+
+        <p>
+          특히 난독증 이용자의 경우 글자가 춤을 추듯 뭉쳐 보이거나 시선이 분산되어 긴 글을 읽는 데 극심한 피로를
+          호소합니다. 이를 해결하기 위해 최근 주목받는 바이오닉 리딩(Bionic Reading) 기법은 단어의 첫 글자를
+          시각적으로 굵게 강조하여 인간의 뇌가 단어를 즉각적이고 연속적으로 인식하도록 돕습니다.
+          또한 마우스 커서를 따라 부드럽게 움직이는 가이드 룰러(Reading Ruler)는 행 바꿈 시 줄을 놓치는 현상을
+          효과적으로 방지해 줍니다.
+        </p>
+
+        <p>
+          저시력 이용자와 백내장 환자에게는 웹페이지의 배경과 텍스트 간 명도 대비가 핵심입니다.
+          순수 검정 배경에 노란색 텍스트가 적용된 고대비 테마나, 자극적인 블루라이트를 차단하는 웜 세피아 톤은
+          장시간 독서 시 눈의 압력을 낮추고 텍스트 가독성을 비약적으로 끌어올립니다.
+        </p>
+
+        <p>
+          기술의 발전은 소외된 이들을 포용할 때 진정한 가치를 발휘합니다.
+          자율 에이전트 기술이 사용자의 신체적 특성과 선호도를 이해하고, 인간 중심의 안전한 검토 과정을 거쳐
+          웹페이지를 유동적으로 재구성할 때, 우리는 비로소 진정한 디지털 평등의 세상으로 한 걸음 더 나아갈 수 있습니다.
+        </p>
+      </article>
+    </main>
+
+    <aside>
+      <div class="banner-ad">
+        📢 [광고] 지금 가입하면 50% 할인! 깜빡이는 특가 상품 확인하기!
+      </div>
+
+      <div class="banner-flash">
+        ⚡ [주의 알림] 실시간 속보 배너: 깜빡임이 많은 인지 방해 요소 시뮬레이션
+      </div>
+
+      <div class="widget-box">
+        <h3>인기 기사 순위</h3>
+        <ul>
+          <li>1. 차세대 웹 접근성 표준 발표</li>
+          <li>2. 생성형 AI 에이전트의 안전 원칙</li>
+          <li>3. 디지털 약자를 위한 포용적 기술</li>
+          <li>4. 친환경 에너지와 탄소 중립 기술</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>

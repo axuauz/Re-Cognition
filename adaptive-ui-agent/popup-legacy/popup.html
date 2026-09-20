@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EqualiUI</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="chatgpt-container">
+    <!-- Top Header: Model & User Traits Inspector -->
+    <header class="chatgpt-header">
+      <div class="model-picker-wrap">
+        <button class="model-picker-btn" id="btn-model-picker">
+          <span class="model-name" id="model-name-text">EqualiUI 5.6 Luna</span>
+          <span class="model-arrow">▾</span>
+        </button>
+
+        <!-- User Persona Traits Inspector Dropdown (Not static modes, but confirmed traits) -->
+        <div class="model-dropdown" id="model-dropdown">
+          <div class="dropdown-header">
+            <span>🧠 확인된 사용자 특화 성향</span>
+            <span class="traits-badge">학습됨</span>
+          </div>
+          <div class="traits-list" id="popup-traits-list">
+            <div class="trait-tag-item">👁️ 본문 130% 이상 확대 선호</div>
+            <div class="trait-tag-item">🌙 눈부심 방지 고대비/다크 선호</div>
+            <div class="trait-tag-item">🚫 산만한 배너/광고 숨김 선호</div>
+            <div class="trait-tag-item">🎯 클릭 버튼 선명한 테두리 선호</div>
+          </div>
+          <div class="dropdown-footer-note">
+            에이전트와 대화하며 확인된 특화 정보가 매번 웹페이지에 자동 반영됩니다.
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right-actions">
+        <button class="icon-btn" id="btn-new-chat" title="새 대화 시작">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btn-open-sidepanel" title="사이드 패널 열기">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <line x1="15" y1="3" x2="15" y2="21"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Top Smart Recommendation Pill (Dynamic RLHF) -->
+    <div class="popup-rec-pill" id="popup-rec-pill" style="display: none;">
+      <div class="rec-pill-content">
+        <span id="rec-pill-icon">💡</span>
+        <span id="rec-pill-text">추천 기능 분석 중...</span>
+      </div>
+      <div class="rec-pill-actions">
+        <button class="btn-rec-pill-run" id="btn-rec-pill-run">실행</button>
+        <button class="btn-rec-pill-feedback" id="btn-rec-pill-like" title="추천 좋아요">👍</button>
+        <button class="btn-rec-pill-feedback" id="btn-rec-pill-dislike" title="추천 별로예요">👎</button>
+        <button class="btn-rec-pill-feedback exclude" id="btn-rec-pill-exclude" title="영구 제외">🚫</button>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="chatgpt-main" id="chatgpt-main">
+      <!-- 1. EMPTY STATE / HOME VIEW (ChatGPT Iconic Greeting) -->
+      <section class="home-view" id="home-view">
+        <div class="home-center">
+          <div class="chatgpt-logo-symbol">
+            <div class="logo-sparkle">✨</div>
+          </div>
+          <h2 class="home-greeting">무엇을 도와드릴까요?</h2>
+          <p class="home-sub">웹페이지에 직접 삽입할 코드를 제작하여 UI를 맞춰드립니다.</p>
+        </div>
+
+        <!-- 2x2 Dynamic Suggestion Cards -->
+        <div class="suggestion-grid" id="suggestion-grid">
+          <button class="suggestion-card" data-prompt="나는 비가 내리는 배경이 좋아. 글래스모피즘 효과와 함께 적용해줘">
+            <div class="card-icon">🌧️</div>
+            <div class="card-text">
+              <strong>비 내리는 감성 배경</strong>
+              <span>빗방울 애니메이션 &amp; 글래스모피즘 주입</span>
+            </div>
+          </button>
+          <button class="suggestion-card" data-prompt="본문 글씨를 130%로 키우고 행간을 넉넉하게 해줘">
+            <div class="card-icon">🔤</div>
+            <div class="card-text">
+              <strong>글씨 확대 &amp; 행간 확보</strong>
+              <span>맞춤 폰트 크기 CSS 즉시 제작 및 주입</span>
+            </div>
+          </button>
+          <button class="suggestion-card" data-prompt="눈부심 방지 고대비 다크 테마 코드를 적용해줘">
+            <div class="card-icon">🌙</div>
+            <div class="card-text">
+              <strong>고대비 다크 테마</strong>
+              <span>눈 피로 감소 다크 스타일 코드 합성</span>
+            </div>
+          </button>
+          <button class="suggestion-card" data-prompt="어지러운 광고와 배너, 사이드바를 다 숨겨줘">
+            <div class="card-icon">🚫</div>
+            <div class="card-text">
+              <strong>광고 및 배너 차단</strong>
+              <span>산만한 요소를 숨기는 CSS 코드 주입</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. ACTIVE CHAT STREAM VIEW -->
+      <section class="chat-view" id="chat-view" style="display: none;">
+        <div class="messages-list" id="messages-list">
+          <!-- Dynamic User & Assistant Messages with Injected Code Previews -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Capsule Prompt Bar (ChatGPT Signature) -->
+    <footer class="chatgpt-footer">
+      <!-- Quick Accessibility Assist Chips -->
+      <div class="popup-quick-assist-bar" id="popup-quick-assist-bar">
+        <button class="quick-chip-btn" data-feature="tts_reader">🎙️ 본문 읽기 (Alt+S)</button>
+        <button class="quick-chip-btn" data-feature="live_captions">💬 실시간 자막 (Alt+C)</button>
+        <button class="quick-chip-btn" data-feature="plain_summary">🌱 쉬운말 요약</button>
+      </div>
+
+      <div class="prompt-capsule-wrap">
+        <button class="capsule-addon-btn" id="btn-revert-quick" title="원래 페이지로 복원 (Alt+Z)">
+          ↩
+        </button>
+        <textarea
+          id="prompt-input"
+          rows="1"
+          placeholder="에이전트에게 지시하기 (예: 본문 글씨 20px, 광고 제거)..."
+          autofocus
+        ></textarea>
+        <button class="send-circle-btn" id="btn-send" disabled title="메시지 전송">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"/>
+            <polyline points="5 12 12 5 19 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="footer-disclaimer">
+        EqualiUI는 사용자 특화 성향을 학습하여 매번 웹페이지 UI를 자동 수정합니다.
+      </div>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

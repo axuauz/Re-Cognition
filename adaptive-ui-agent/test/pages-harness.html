@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light" data-size="normal">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Re:Cognition Pages Harness</title>
+</head>
+<body>
+<div id="root"></div>
+<script src="../shared/persona.js"></script>
+<script src="../shared/speech.js"></script>
+<script src="../shared/profile.js"></script>
+<script src="../shared/selection.js"></script>
+<script>
+  // chrome.* 스텁으로 빌드된 확장 페이지(pages/)를 일반 브라우저에서 확인한다.  ?page=sidepanel|popup|newtab
+  // ?traits=저시력,난독증 : 특성 메모 · ?norec=1 : 팝업 추천 없음
+  // ?restricted=1 : 새 탭처럼 바꿀 수 없는 페이지 · ?theme=contrast&size=xlarge : 보기 설정
+  const Q = new URLSearchParams(location.search);
+  const PAGE = Q.get('page') || 'sidepanel';
+  document.documentElement.dataset.page = PAGE;
+  const store = {
+    persona: Q.get('persona') || 'none',
+    traitInsights: Q.has('traits') ? Q.get('traits').split(',').filter(Boolean) : (PAGE === 'sidepanel' ? ['저시력이라 큰 글씨 선호'] : []),
+    rlhfWeights: { tts_reader: 1.4, rain_ambient: 0.4 }, featureUsageStats: { tts_reader: 3 },
+    negativeRules: [{ featureId: 'rain_ambient' }],
+    rejectionMemory: [{ goalTitle: '고대비 다크 테마', reason: '변화가 너무 커요' }],
+    sitePatchRegistry: { 'news.example.com': { generatedCss: 'main p { font-size: 20px !important; }', goalTitle: '본문 글자 확대', generatedAt: Date.now(), approvedAt: Date.now(), autoApply: true } },
+    newtabPrefs: Q.get('theme') || Q.get('size') ? { theme: Q.get('theme') || 'auto', size: Q.get('size') || 'normal', userSet: true } : undefined,
+  };
+  const listeners = [];
+  window.__sent = []; window.__tabSent = [];
+  const tab = { id: 1, url: Q.has('restricted') ? 'chrome://newtab/' : 'https://news.example.com/article/1', title: '예시 뉴스' };
+  window.chrome = {
+    runtime: {
+      getURL: (p) => 'chrome-extension://stub/' + p,
+      sendMessage: async (m) => {
+        window.__sent.push(m);
+        if (m.type === 'DIRECT_INSTRUCTION') {
+          await new Promise(r => setTimeout(r, 300));
+          return { success: true, reviewShown: true, proposal: { id: 'p' + Date.now(), goalTitle: '본문 글자 확대 + 검색 버튼 변경', summary: '본문을 크게 하고 사이드바를 숨깁니다.', generatedCss: 'main p { font-size: 20px !important; }\naside { display: none !important; }', generatedDom: [], generatedJs: { '#equali-inj-top': "el.addEventListener('click',()=>scrollTo(0,0))" }, searchedImages: [] },
+            audit: { riskLevel: Q.get('risk') || 'high', repaired: true, findings: [
+              { severity: 'block', code: 'CSS_IMPORT', target: '', message: '외부 스타일시트를 불러오는 @import 를 제거했습니다.' },
+              { severity: 'high', code: 'DOM_LABEL_CHANGE', target: '#search-btn', message: "'검색' 의 표시 문구를 '메일 보내기'(으)로 바꿉니다. 기능은 그대로인데 이름만 달라질 수 있습니다." }] } };
+        }
+        if (m.type === 'GET_PERSONA_STATE') return { success: true, persona: EqualiPersona.get(store.persona), personas: EqualiPersona.list() };
+        if (m.type === 'SET_PERSONA') { if (m.custom) { EqualiPersona.setCustom(m.custom); chrome.storage.local.set({ customPersona: m.custom }); } chrome.storage.local.remove('newtabPrefs'); chrome.storage.local.set({ persona: m.personaId }); return { success: true, persona: EqualiPersona.get(m.personaId), appliedToTab: !Q.has('restricted') }; }
+        if (m.type === 'GET_PROFILE') {
+          // 12번의 방문을 흉내 내어 프로필을 만든 뒤, 실제 서비스 워커와 같은 모듈로 설명을 만든다
+          let prof = store.userProfile || EqualiProfile.emptyProfile();
+          if (!store.userProfile) {
+            for (let i = 0; i < 12; i++) prof = EqualiProfile.observeSession(prof, { domain: 'news.example.com', pageType: 'article', dwellSec: 200, signals: { zoomEvents: 1, rereadScrolls: 4, textLength: 3000 }, input: { clicks: 10, missClicks: 5, keyNav: 0, firstActionSec: 20 }, environment: { prefersContrast: true }, usedFeatures: i % 2 ? ['tts_reader'] : [], targets: [] });
+            store.userProfile = prof;
+          }
+          return { success: true, description: EqualiProfile.describe(prof, store.traitInsights), strategyStats: { minimal: { success: 4.5, failure: 1 }, structural: { success: 0, failure: 3 } }, strategies: EqualiSelection.STRATEGIES };
+        }
+        if (m.type === 'SET_PROFILE_OVERRIDE') { const prof = store.userProfile; prof.overrides = { ...(prof.overrides || {}), [m.key]: m.value || undefined }; chrome.storage.local.set({ userProfile: { ...prof } }); return { success: true }; }
+        if (m.type === 'GET_FEATURE_RECOMMENDATIONS') return { success: true, recommendations: Q.has('norec') ? [] : [{ id: 'large_font', title: '🔤 큰 글꼴 및 여유로운 행간', desc: '', reasons: ['본문 글자가 12px로 작습니다', '방금 화면을 확대하셨어요'] }] };
+        if (m.type === 'RESET_RLHF_LEARNING') chrome.storage.local.set({ rlhfWeights: {}, negativeRules: [], rejectionMemory: [] });
+        if (m.type === 'REMOVE_NEGATIVE_RULE') chrome.storage.local.set({ negativeRules: store.negativeRules.filter(r => r.featureId !== m.featureId) });
+        return { success: true, results: [] };
+      },
+    },
+    tabs: {
+      query: async () => [tab],
+      sendMessage: async (id, m) => {
+        window.__tabSent.push(m);
+        if (m.type === 'GET_STATUS') return { isAdapted: window.__adapted || false };
+        if (m.type === 'GET_SIGNALS') return { success: true, signals: { fontPx: 12, zoomEvents: 1 }, pageType: 'article', domain: 'news.example.com', activeFeatures: [] };
+        if (m.type === 'RESOLVE_REVIEW') { if (m.decision !== 'reject') window.__adapted = true; return { success: true, decision: m.decision, alternativeOffered: m.decision === 'reject' }; }
+        if (m.type.startsWith('TOGGLE_')) return { success: true, active: true };
+        return { success: true };
+      },
+      onActivated: { addListener() {}, removeListener() {} }, onUpdated: { addListener() {}, removeListener() {} },
+    },
+    scripting: { insertCSS: async () => {}, executeScript: async () => {} },
+    windows: { getCurrent: async () => ({ id: 1 }) },
+    sidePanel: { open: async () => { window.__sidePanelOpened = true; } },
+    search: { query: (q) => { (window.__queries = window.__queries || []).push(q); } },
+    topSites: { get: (cb) => cb([
+      { title: '네이버', url: 'https://www.naver.com/' }, { title: '위키백과, 우리 모두의 백과사전', url: 'https://ko.wikipedia.org/' },
+      { title: 'YouTube', url: 'https://www.youtube.com/' }, { title: '<img src=x onerror=alert(1)>', url: 'https://xss.example/' }, { title: 'bad', url: 'javascript:alert(1)' }]) },
+    storage: {
+      local: {
+        get: async (keys) => { const ks = typeof keys === 'string' ? [keys] : keys; return Object.fromEntries(ks.filter(k => store[k] !== undefined).map(k => [k, store[k]])); },
+        remove: async (k) => { const oldValue = store[k]; delete store[k]; listeners.forEach(fn => fn({ [k]: { oldValue, newValue: undefined } }, 'local')); },
+        set: async (o) => { for (const [k, v] of Object.entries(o)) { const oldValue = store[k]; store[k] = v; listeners.forEach(fn => fn({ [k]: { oldValue, newValue: v } }, 'local')); } },
+      },
+      onChanged: { addListener: (fn) => listeners.push(fn), removeListener: (fn) => listeners.splice(listeners.indexOf(fn), 1) },
+    },
+  };
+  // 빌드 결과물의 (해시가 붙은) 파일 이름을 pages/<page>.html 에서 읽어 온다
+  fetch(`../pages/${PAGE}.html`).then(r => r.text()).then(html => {
+    const css = html.match(/rel="stylesheet"[^>]*href="\.\/(assets\/[^"]+\.css)"/)[1], js = html.match(/<script[^>]*src="\.\/(assets\/[^"]+\.js)"/)[1];
+    document.head.insertAdjacentHTML('beforeend', `<link rel="stylesheet" href="../pages/${css}">`);
+    const s = document.createElement('script'); s.type = 'module'; s.src = '../pages/' + js; document.body.appendChild(s);
+  });
+</script>
+</body>
+</html>

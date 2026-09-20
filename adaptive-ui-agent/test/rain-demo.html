@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Re:Cognition - 비 내리는 아늑한 창가 배경 데모</title>
+  <style>
+    /* Base website styles */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #FFFFFF;
+    }
+    .container {
+      max-width: 920px;
+      margin: 24px auto;
+      padding: 0 20px;
+    }
+    article {
+      padding: 32px;
+      line-height: 1.8;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    /* EqualiUI Injected Patch: 비 내리는 아늑한 창가 배경 */
+    html {
+      background-color: #0D1512 !important;
+      min-height: 100% !important;
+    }
+
+    body {
+      background-image: url("/assets/rain-window.gif") !important;
+      background-repeat: no-repeat !important;
+      background-size: cover !important;
+      background-position: center center !important;
+      background-attachment: fixed !important;
+      background-color: #0D1512 !important;
+      min-height: 100vh !important;
+    }
+
+    #wrap, #wrapper, #app, #root, .wrap, .wrapper, .site-wrapper, .page-wrapper, .layout,
+    .container-fluid, aside, .sidebar, .side-bar, nav, header {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+
+    main, article, .post-content, .article-content, .entry-content, .board-view,
+    .article-body, .post-body, .main-content, .content-area {
+      background: rgba(13, 21, 20, 0.85) !important;
+      backdrop-filter: blur(14px) !important;
+      -webkit-backdrop-filter: blur(14px) !important;
+      border-radius: 16px !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+      padding: 32px !important;
+      margin: 20px auto !important;
+      max-width: 900px !important;
+      position: relative !important;
+      z-index: 2 !important;
+    }
+
+    p, span, h1, h2, h3, h4, h5, h6, li, td, th {
+      color: #F1F5F9 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+    }
+
+    h1, h2 {
+      color: #A7F3D0 !important;
+    }
+
+    a {
+      color: #93C5FD !important;
+      text-decoration: underline !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="font-weight:700; font-size:16px;">✨ EqualiUI 5.6 Luna</div>
+    <div style="font-size:13px; color:#A7F3D0;">🌧️ 비 내리는 아늑한 창가 테마 적용됨</div>
+  </header>
+
+  <div class="container">
+    <article>
+      <h1>실전 데모: "비 내리는 아늑한 창가 배경"</h1>
+      <p>
+        창밖으로 촉촉하게 비가 내리고 유리창에는 투명한 빗방울이 천천히 흘러내립니다. 창가에는 싱그러운 꽃병이 놓여 있어 마음을 차분하고 편안하게 만들어 줍니다.
+      </p>
+      <p>
+        이전의 부자연스러운 가로 줄무늬나 금속 셔터 느낌을 완전히 제거하고, 사용자가 요청하신 고화질 창가 풍경을 반투명 프로스트 글래스모피즘과 완벽하게 융합하여 본문의 높은 가독성과 감성적인 비주얼을 동시에 만족합니다.
+      </p>
+      <div style="margin-top: 24px; padding: 16px; background: rgba(255, 255, 255, 0.06); border-radius: 8px;">
+        <span style="color: #FACC15; font-weight: 600;">💡 에이전트 맞춤 특징:</span>
+        <span style="color: #CBD5E1;">웹페이지의 어떠한 복잡한 레이아웃에서도 외부 컨테이너를 투명화하고 본문만 아늑한 독서 카드로 띄워 창가 풍경을 온전히 감상할 수 있습니다.</span>
+      </div>
+    </article>
+  </div>
+</body>
+</html>
